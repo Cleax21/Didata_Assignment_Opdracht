@@ -8,7 +8,7 @@ namespace Didata_Assignment_Opdracht
 {
     public static class Settings
     {
-        public static bool isDebug = true;
+        public static bool isDebug = false;
         public static bool isExample = false;
     }
 }

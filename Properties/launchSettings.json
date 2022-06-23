@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Didata_Assignment_Opdracht": {
+      "commandName": "Project",
+      "commandLineArgs": "-f Order.json Test1.csv"
+    }
+  }
+}

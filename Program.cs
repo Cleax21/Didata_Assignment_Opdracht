@@ -1,4 +1,6 @@
-﻿using System.Text.Json;
+﻿using CsvHelper;
+using System.Text.Json;
+using System.Globalization;
 
 namespace Didata_Assignment_Opdracht
 {
@@ -6,30 +8,30 @@ namespace Didata_Assignment_Opdracht
     {
         public static void Main(string[] args)
         {
-            List<Order>? orders = null;
-            if(Settings.isExample)
+            List<Order>? orders;
+            if (Settings.isExample)
             {
                 string path = "Order.json";
 
                 string OrderJsonData = File.ReadAllText(path);
 
                 orders = JsonSerializer.Deserialize<List<Order>>(OrderJsonData);
-            } 
+            }
             else
             {
-                if(args.Length != 0)
+                bool foundArgD = false;
+                string dArgument = "";
+
+                bool foundArgF = false;
+                List<string> fArguments = new();
+
+                string? filename;
+
+                if (args.Length != 0)
                 {
-                    bool foundArgD = false;
-                    string dArgument = "";
-
-                    bool foundArgF = false;
-                    List<string> fArguments = new List<string>();
-
-                    string filename = "";
-
                     for (int i = 0; i < args.Length; i++)
                     {
-                        switch(args[i])
+                        switch (args[i])
                         {
                             case "--help":
                                 Help();
@@ -41,7 +43,7 @@ namespace Didata_Assignment_Opdracht
                                 Help();
                                 return;
                             case "-d":
-                                if(!foundArgD)
+                                if (!foundArgD)
                                 {
                                     foundArgD = true;
                                     i++;
@@ -59,7 +61,7 @@ namespace Didata_Assignment_Opdracht
                                 i++;
                                 fArguments.Add(args[i]);
                                 break;
- 
+
                         }
                     }
 
@@ -68,32 +70,31 @@ namespace Didata_Assignment_Opdracht
                         Console.WriteLine("Both -d and -f argument can only be used exclusively.");
                         return;
                     }
-                    else if(!foundArgD && !foundArgF)
+                    else if (!foundArgD && !foundArgF)
                     {
                         Console.WriteLine("Invalid arguments. use -d or -f.");
                         return;
                     }
 
-                    if(foundArgD && !Directory.Exists(dArgument))
+                    if (foundArgD && !Directory.Exists(dArgument))
                     {
                         Console.WriteLine($"argument -d is invalid. Cannot find directory path: '{dArgument}' ");
                         return;
                     }
 
-                    foreach(var fArgument in fArguments)
-                    {  
+                    foreach (var fArgument in fArguments)
+                    {
                         if (Path.GetExtension(fArgument) != ".json")
                         {
                             Console.WriteLine($"argument: {fArgument} is an invalid -f argument. all -f argument need an .json extension");
                             return;
                         }
-                        else if(!File.Exists(fArgument))
+                        else if (!File.Exists(fArgument))
                         {
                             Console.WriteLine($"file '{fArgument}' does not exist.");
                             return;
                         }
                     }
-
                     if (args.Last() != dArgument && args.Last() != fArguments.Last())
                     {
                         filename = args.Last();
@@ -114,7 +115,7 @@ namespace Didata_Assignment_Opdracht
                         Console.WriteLine($"-d: {dArgument}");
                     }
 
-                    if(foundArgF)
+                    if (foundArgF)
                     {
                         foreach (var fArgument in fArguments)
                         {
@@ -123,12 +124,32 @@ namespace Didata_Assignment_Opdracht
                     }
 
                     Console.WriteLine($"filename: {filename}");
-                } 
+                }
                 else
                 {
                     Console.WriteLine("No arguments has been supplied. Use --help for further information.");
                     return;
                 }
+
+                string OrderJsonData = File.ReadAllText(fArguments[0]);
+
+                orders = JsonSerializer.Deserialize<List<Order>>(OrderJsonData);
+
+                var csvPath = Path.Combine(Environment.CurrentDirectory, filename);
+                using var streamWriter = new StreamWriter(csvPath);
+                CultureInfo nfi = CultureInfo.GetCultureInfo("en-US");
+                CsvHelper.Configuration.CsvConfiguration configure = new(nfi)
+                {
+                    HasHeaderRecord = false,
+                    Delimiter = "|",
+                    SanitizeForInjection = false,
+                };
+
+
+                using var csvWriter = new CsvWriter(streamWriter, configure);
+                csvWriter.Context.RegisterClassMap<OrderClassMap>();
+                csvWriter.WriteRecords(orders);
+
             }
 
 

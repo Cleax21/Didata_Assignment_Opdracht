@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CsvHelper.Configuration;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,6 +7,18 @@ using System.Threading.Tasks;
 
 namespace Didata_Assignment_Opdracht
 {
+    public class OrderClassMap : ClassMap<Order>
+    {
+        public OrderClassMap()
+        {
+            Map(o => o.OrderId).Index(1);
+            Map(o => o.Description).Index(2);
+            Map(o => o.CustomerId).Index(3);
+            Map(o => o.Products.Count).Index(4);
+            Map(o => o.TotalPrice).Index(5);
+        }
+    }
+
     public class Order
     {
         public Order(int orderId, string description, int customerId, List<Product> products)
@@ -14,11 +27,14 @@ namespace Didata_Assignment_Opdracht
             Description = description;
             CustomerId = customerId;
             Products = products;
+
+            TotalPrice = Products.Sum(product => product.Price);
         }
         public int OrderId { get; }
         public string Description { get; }
         public int CustomerId { get; }
         public List<Product> Products { get; }
+        public float TotalPrice { get; }
 
         public void WriteToConsole()
         {
