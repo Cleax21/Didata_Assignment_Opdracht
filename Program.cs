@@ -25,12 +25,21 @@ namespace Didata_Assignment_Opdracht
                     bool foundArgF = false;
                     List<string> fArguments = new List<string>();
 
-                    var filename = "output.csv";
+                    string filename = "";
 
                     for (int i = 0; i < args.Length; i++)
                     {
                         switch(args[i])
                         {
+                            case "--help":
+                                Help();
+                                return;
+                            case "--h":
+                                Help();
+                                return;
+                            case "--?":
+                                Help();
+                                return;
                             case "-d":
                                 if(!foundArgD)
                                 {
@@ -50,6 +59,7 @@ namespace Didata_Assignment_Opdracht
                                 i++;
                                 fArguments.Add(args[i]);
                                 break;
+ 
                         }
                     }
 
@@ -95,7 +105,8 @@ namespace Didata_Assignment_Opdracht
                     }
                     else
                     {
-                        Console.WriteLine($"Warning! no filename given. filename defaulted to '{filename}'");
+                        Console.WriteLine($"No filename given. Aborting...");
+                        return;
                     }
 
                     if (foundArgD)
@@ -137,6 +148,24 @@ namespace Didata_Assignment_Opdracht
             {
                 order.WriteToConsole();
             }
+        }
+
+        public static void Help()
+        {
+            Console.WriteLine("--------------------------------------------------");
+            Console.WriteLine("Syntax: Program-name [OPTIONS] FILENAME");
+            Console.WriteLine("");
+            Console.WriteLine("OPTIONS:");
+            Console.WriteLine("-d   Name of an existing directory where the");
+            Console.WriteLine("     program searches for .json files. Can only be");
+            Console.WriteLine("     used once. Exclusive to -f.");
+            Console.WriteLine("");
+            Console.WriteLine("-f   Name of the input file. Can be used multiple");
+            Console.WriteLine("     times. Exclusive to -d");
+            Console.WriteLine("");
+            Console.WriteLine("FILENAME");
+            Console.WriteLine("     Name of the output file");
+            Console.WriteLine("--------------------------------------------------");
         }
     }
 }
