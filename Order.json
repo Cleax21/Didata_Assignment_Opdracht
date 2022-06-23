@@ -1,0 +1,21 @@
+﻿[
+  {
+    "OrderId": 1,
+    "Description": "Order 123",
+    "CustomerId": 123,
+    "Products": [
+      {
+        "ProductId": "PID1",
+        "Description": "pid1 description",
+        "Amount": 1.5,
+        "Price": 19.5
+      },
+      {
+        "ProductId": "PID2",
+        "Description": "pid2 description",
+        "Amount": 2.5,
+        "Price": 12.1
+      }
+    ]
+  }
+]
