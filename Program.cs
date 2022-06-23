@@ -32,9 +32,18 @@ namespace Didata_Assignment_Opdracht
                         switch(args[i])
                         {
                             case "-d":
-                                foundArgD = true;
-                                i++;
-                                dArgument = args[i ];
+                                if(!foundArgD)
+                                {
+                                    foundArgD = true;
+                                    i++;
+                                    dArgument = args[i];
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Argument -d can only be used once.");
+                                    return;
+                                }
+
                                 break;
                             case "-f":
                                 foundArgF = true;
@@ -49,23 +58,57 @@ namespace Didata_Assignment_Opdracht
                         Console.WriteLine("Both -d and -f argument can only be used exclusively.");
                         return;
                     }
-                    else if(!foundArgD && !foundArgD)
+                    else if(!foundArgD && !foundArgF)
                     {
                         Console.WriteLine("Invalid arguments. use -d or -f.");
                         return;
                     }
 
+                    if(foundArgD && !Directory.Exists(dArgument))
+                    {
+                        Console.WriteLine($"argument -d is invalid. Cannot find directory path: '{dArgument}' ");
+                        return;
+                    }
+
+                    foreach(var fArgument in fArguments)
+                    {  
+                        if (Path.GetExtension(fArgument) != ".json")
+                        {
+                            Console.WriteLine($"argument: {fArgument} is an invalid -f argument. all -f argument need an .json extension");
+                            return;
+                        }
+                        else if(!File.Exists(fArgument))
+                        {
+                            Console.WriteLine($"file '{fArgument}' does not exist.");
+                            return;
+                        }
+                    }
+
                     if (args.Last() != dArgument && args.Last() != fArguments.Last())
                     {
                         filename = args.Last();
-                        Console.WriteLine($"Last valid argument: {filename}");
+                        if (Path.GetExtension(filename) != ".csv")
+                        {
+                            Console.WriteLine("filename doesn't include the valid .csv extension. Adding it manually");
+                            filename = Path.ChangeExtension(filename, ".csv");
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Warning! no filename given. filename defaulted to '{filename}'");
                     }
 
-                    Console.WriteLine($"-d: {dArgument}");
-
-                    foreach(var fArgument in fArguments)
+                    if (foundArgD)
                     {
-                        Console.WriteLine($"-f: {fArgument}");
+                        Console.WriteLine($"-d: {dArgument}");
+                    }
+
+                    if(foundArgF)
+                    {
+                        foreach (var fArgument in fArguments)
+                        {
+                            Console.WriteLine($"-f: {fArgument}");
+                        }
                     }
 
                     Console.WriteLine($"filename: {filename}");
