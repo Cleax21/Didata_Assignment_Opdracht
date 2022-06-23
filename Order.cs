@@ -19,5 +19,25 @@ namespace Didata_Assignment_Opdracht
         public string Description { get; }
         public int CustomerId { get; }
         public List<Product> Products { get; }
+
+        public void WriteToConsole()
+        {
+            Console.WriteLine($"Order ID: {OrderId}");
+            Console.WriteLine($"Description: {Description}");
+            Console.WriteLine($"Customer ID: {CustomerId}");
+            Console.WriteLine("Products:");
+            Console.WriteLine("{");
+
+            foreach (Product product in Products)
+            {
+                Console.WriteLine("    -----");
+                product.WriteToConsole();
+                if (product == Products.Last())
+                {
+                    Console.WriteLine("    -----");
+                }
+            }
+            Console.WriteLine("}");
+        }
     }
 }

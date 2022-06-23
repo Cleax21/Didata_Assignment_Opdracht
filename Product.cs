@@ -8,6 +8,12 @@ namespace Didata_Assignment_Opdracht
 {
     public class Product
     {
+        public string ProductId { get; }
+
+        public string Description { get; }
+        public float Amount { get; }
+        public float Price { get; }
+
         public Product(string productId, string description, float amount, float price)
         {
             ProductId = productId;
@@ -15,10 +21,13 @@ namespace Didata_Assignment_Opdracht
             Amount = amount;
             Price = price;
         }
-        public string ProductId { get; }
 
-        public string Description { get; }
-        public float Amount { get; }
-        public float Price { get; }
+        public void WriteToConsole()
+        {
+            Console.WriteLine($"    ID: {ProductId}");
+            Console.WriteLine($"    Description: {Description}");
+            Console.WriteLine($"    Amount: {Amount}");
+            Console.WriteLine($"    Price: {Price}");
+        }
     }
 }
