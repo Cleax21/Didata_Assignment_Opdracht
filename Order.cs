@@ -29,12 +29,21 @@ namespace Didata_Assignment_Opdracht
             Products = products;
 
             TotalPrice = Products.Sum(product => product.Price);
+
+            try
+            {
+                validate();
+            }
+            catch(Exception e)
+            {
+                throw new Exception(e.Message);
+            }
         }
         public int OrderId { get; }
         public string Description { get; }
         public int CustomerId { get; }
         public List<Product> Products { get; }
-        public float TotalPrice { get; }
+        public decimal TotalPrice { get; }
 
         public void WriteToConsole()
         {
@@ -54,6 +63,34 @@ namespace Didata_Assignment_Opdracht
                 }
             }
             Console.WriteLine("}");
+        }
+
+        public void validate()
+        {
+            if(OrderId <= 0)
+            {
+                throw new Exception("OrderId must be higher than 0");
+            }
+
+            if (Description.Length > 100)
+            {
+                throw new Exception("Description title is to long. Max 100 characters allowed");
+            }
+
+            if(CustomerId <= 0)
+            {
+                throw new Exception("CustomerId must be higher than 0");
+            }
+
+            if(Products.Count <= 0)
+            {
+                throw new Exception("Order contains no products");
+            }
+
+            foreach(var product in Products)
+            {
+                product.validate();
+            }
         }
     }
 }
