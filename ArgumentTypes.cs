@@ -11,6 +11,7 @@ namespace Didata_Assignment_Opdracht
         D,
         F,
         HELP,
-        FILENAME
+        FILENAME,
+        INVALID
     }
 }

@@ -32,7 +32,7 @@ namespace Didata_Assignment_Opdracht
 
             try
             {
-                validate();
+                Validate();
             }
             catch(Exception e)
             {
@@ -65,7 +65,7 @@ namespace Didata_Assignment_Opdracht
             Console.WriteLine("}");
         }
 
-        public void validate()
+        public void Validate()
         {
             if(OrderId <= 0)
             {

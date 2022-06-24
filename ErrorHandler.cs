@@ -31,10 +31,10 @@ namespace Didata_Assignment_Opdracht
                     Console.WriteLine("Argument -d is invalid. Cannot find the directory path.");
                     break;
                 case ErrorTypes.INVALID_F_EXTENSION:
-                    Console.WriteLine("A -f argument is invalid. all -f argument need an .json extension");
+                    Console.WriteLine("An given -f argument is invalid. all -f argument need an .json extension");
                     break;
                 case ErrorTypes.FILE_F_DOES_NOT_EXIST:
-                    Console.WriteLine($"A -f file does not exist.");
+                    Console.WriteLine($"An given -f file does not exist.");
                     break;
                 case ErrorTypes.NO_FILENAME_GIVEN:
                     Console.WriteLine($"FILENAME is missing.");

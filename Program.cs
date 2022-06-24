@@ -9,31 +9,21 @@ namespace Didata_Assignment_Opdracht
         public static void Main(string[] args)
         {
             List<Order>? orders;
-            if (Settings.isExample)
-            {
-                orders = GetExampleValues();
 
-                WriteToCSV(orders, "output.csv");
-            }
-            else
+            try
             {
                 Dictionary<ArgumentTypes, string> list = RetrieveArguments(args);
+                ValidateArgs(list);
                 string OrderJsonData = File.ReadAllText(list.FirstOrDefault(item => item.Key == ArgumentTypes.F).Value);
-
-                try
-                {
-                    orders = JsonSerializer.Deserialize<List<Order>>(OrderJsonData) ?? new();
-                } 
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                    return;
-                }
-
-                
+                orders = JsonSerializer.Deserialize<List<Order>>(OrderJsonData) ?? new();
                 WriteToCSV(orders, list.FirstOrDefault(i => i.Key == ArgumentTypes.FILENAME).Value);
             }
-
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return;
+            }
+           
             if (Settings.isDebug)
             {
                 if (orders != null)
@@ -98,121 +88,144 @@ namespace Didata_Assignment_Opdracht
         private static Dictionary<ArgumentTypes, string> RetrieveArguments(string[] args)
         {
             Dictionary<ArgumentTypes, string> list = new();
-            bool foundArgD = false;
-            bool foundArgF = false;
 
-            if (args.Length != 0)
+            for (int i = 0; i < args.Length; i++)
             {
-                for (int i = 0; i < args.Length; i++)
+                switch (args[i])
                 {
-                    switch (args[i])
-                    {
-                        case "--help":
-                            list.Add(ArgumentTypes.HELP, "--help");
-                            break;
-                        case "--h":
-                            list.Add(ArgumentTypes.HELP, "--h");
-                            break;
-                        case "--?":
-                            list.Add(ArgumentTypes.HELP, "--?");
-                            break;
-                        case "-d":
-                            if (!foundArgD)
+                    case "--help":
+                        list.Add(ArgumentTypes.HELP, "--help");
+                        return list;
+                    case "--h":
+                        list.Add(ArgumentTypes.HELP, "--h");
+                        return list;
+                    case "--?":
+                        list.Add(ArgumentTypes.HELP, "--?");
+                        return list;
+                    case "-d":
+                        if (i + 1 >= args.Length)
+                        {
+                            list.Add(ArgumentTypes.INVALID, $"Argument -d on index '{i}' is missing a directory path");
+                            return list;
+                        }
+                        i++;
+                        list.Add(ArgumentTypes.D, args[i]);
+                        break;
+                    case "-f":
+                        if (i + 1 >= args.Length)
+                        {
+                            list.Add(ArgumentTypes.INVALID, $"Argument -f on index '{i}' is missing a .json file");
+                            return list;
+
+                        }
+                        i++;
+                        list.Add(ArgumentTypes.F, args[i]);
+                        break;
+                    default:
+                        if (args.Last().Equals(args[i]))
+                        {
+                            if (args[i].Contains("-"))
                             {
-                                foundArgD = true;
-                                i++;
-                                list.Add(ArgumentTypes.D, args[i]);
+                                list.Add(ArgumentTypes.INVALID, $"Unknown argument '{args[i]}'. Use --help for more information");
+                                return list;
                             }
-                            else
-                            {
-                                ErrorHandler.writeErrorToConsole(ErrorTypes.ARGUMENT_D_ONLY_ONCE);
-                            }
-                            break;
-                        case "-f":
-                            foundArgF = true;
-                            i++;
-                            list.Add(ArgumentTypes.F, args[i]);
-                            break;
-                        default:
-                            if (!args.Last().Equals(args[i]))
-                            {
-                                ErrorHandler.writeErrorToConsole(ErrorTypes.INVALID_ARGUMENTS);
-                            }
-                            break;
-                    }
+                            list.Add(ArgumentTypes.FILENAME, args.Last());
+                        } 
+                        else
+                        {
+                            list.Add(ArgumentTypes.INVALID, $"Unknown argument '{args[i]}'. Use --help for more information");
+                            return list;
+                        }
+                        break;
                 }
-
-                if (foundArgD && foundArgF)
-                {
-                    ErrorHandler.writeErrorToConsole(ErrorTypes.ARGUMENT_D_AND_F_INVALID);
-                }
-                else if (!foundArgD && !foundArgF)
-                {
-                    ErrorHandler.writeErrorToConsole(ErrorTypes.ARGUMENT_D_OR_F_MISSING);
-                }
-
-                if (foundArgD && !Directory.Exists(list.FirstOrDefault(t => t.Key == ArgumentTypes.D).Value))
-                {
-                    ErrorHandler.writeErrorToConsole(ErrorTypes.ARGUMENT_D_INVALID);
-                }
-
-                List<string> fArguments = new();
-
-                foreach (var item in list)
-                {
-                    if(item.Key == ArgumentTypes.F)
-                    {
-                        fArguments.Add(item.Value);
-                    }
-                }
-
-                foreach (var fArgument in fArguments)
-                {
-                    if (Path.GetExtension(fArgument) != ".json")
-                    {
-                        ErrorHandler.writeErrorToConsole(ErrorTypes.INVALID_F_EXTENSION);
-                    }
-                    else if (!File.Exists(fArgument))
-                    {
-                        ErrorHandler.writeErrorToConsole(ErrorTypes.FILE_F_DOES_NOT_EXIST);
-                    }
-                }
-
-                if (args.Last() != list.FirstOrDefault(item => item.Key == ArgumentTypes.D).Value && args.Last() != fArguments.Last())
-                {
-                    list.Add(ArgumentTypes.FILENAME, args.Last());
-                    if (Path.GetExtension(list.FirstOrDefault(i => i.Key == ArgumentTypes.FILENAME).Value) != ".csv")
-                    {
-                        Console.WriteLine("filename doesn't include the valid .csv extension. Adding it manually");
-                        list[list.FirstOrDefault(i => i.Key == ArgumentTypes.FILENAME).Key] = Path.ChangeExtension(list.FirstOrDefault(i => i.Key == ArgumentTypes.FILENAME).Value, ".csv");
-                    }
-                }
-                else
-                {
-                    ErrorHandler.writeErrorToConsole(ErrorTypes.NO_FILENAME_GIVEN);
-                }
-
-                if (foundArgD)
-                {
-                    Console.WriteLine($"-d: {list.FirstOrDefault(i => i.Key == ArgumentTypes.D).Value}");
-                }
-
-                if (foundArgF)
-                {
-                    foreach (var fArgument in fArguments)
-                    {
-                        Console.WriteLine($"-f: {fArgument}");
-                    }
-                }
-
-                Console.WriteLine($"filename: {list.FirstOrDefault(i => i.Key == ArgumentTypes.FILENAME).Value}");
-            }
-            else
-            {
-                ErrorHandler.writeErrorToConsole(ErrorTypes.NO_ARGUMENT);
             }
 
             return list;
+        }
+
+        public static void ValidateArgs(Dictionary<ArgumentTypes, string> list)
+        {
+            if (list.ContainsKey(ArgumentTypes.HELP))
+            {
+                Help();
+                throw new Exception("");
+            }
+            if (list.ContainsKey(ArgumentTypes.INVALID))
+            {
+                throw new Exception(list.FirstOrDefault(i => i.Key == ArgumentTypes.INVALID).Value);
+            }
+
+            bool foundArgD = false;
+            bool foundArgF = false;
+
+            if (list.ContainsKey(ArgumentTypes.D))
+            {
+                foundArgD = true;
+                if (list.Where(i => i.Key == ArgumentTypes.D).Count() > 1)
+                {
+                    ErrorHandler.writeErrorToConsole(ErrorTypes.ARGUMENT_D_ONLY_ONCE);
+                }
+            }
+
+            if (list.ContainsKey(ArgumentTypes.F))
+            {
+                foundArgF = true;
+            }
+
+            if (!list.ContainsKey(ArgumentTypes.FILENAME))
+            {
+                ErrorHandler.writeErrorToConsole(ErrorTypes.NO_FILENAME_GIVEN);
+            }
+
+            if (foundArgD && foundArgF)
+            {
+                ErrorHandler.writeErrorToConsole(ErrorTypes.ARGUMENT_D_AND_F_INVALID);
+            }
+            else if (!foundArgD && !foundArgF)
+            {
+                ErrorHandler.writeErrorToConsole(ErrorTypes.ARGUMENT_D_OR_F_MISSING);
+            }
+
+            if (foundArgD && !Directory.Exists(list.FirstOrDefault(t => t.Key == ArgumentTypes.D).Value))
+            {
+                ErrorHandler.writeErrorToConsole(ErrorTypes.ARGUMENT_D_INVALID);
+            }
+
+            foreach(var item in list.Where(i => i.Key == ArgumentTypes.F))
+            {
+                if (Path.GetExtension(item.Value) != ".json")
+                {
+                    ErrorHandler.writeErrorToConsole(ErrorTypes.INVALID_F_EXTENSION);
+                }
+                else if (!File.Exists(item.Value))
+                {
+                    ErrorHandler.writeErrorToConsole(ErrorTypes.FILE_F_DOES_NOT_EXIST);
+                }
+            }
+
+            if (Path.GetExtension(list.FirstOrDefault(i => i.Key == ArgumentTypes.FILENAME).Value) != ".csv")
+            {
+                Console.WriteLine("filename doesn't include the valid .csv extension. Adding it manually...");
+                list[list.FirstOrDefault(i => i.Key == ArgumentTypes.FILENAME).Key] = Path.ChangeExtension(list.FirstOrDefault(i => i.Key == ArgumentTypes.FILENAME).Value, ".csv");
+            }
+
+            Console.WriteLine($"filename: {list.FirstOrDefault(i => i.Key == ArgumentTypes.FILENAME).Value}");
+
+
+            if (foundArgD)
+            {
+                Console.WriteLine($"-d: {list.FirstOrDefault(i => i.Key == ArgumentTypes.D).Value}");
+            }
+
+            if (foundArgF)
+            {
+                foreach (var item in list.Where(i => i.Key == ArgumentTypes.F))
+                {
+                    Console.WriteLine($"-f: {item.Value}");
+                }
+            }
+
+            Console.WriteLine("-----");
         }
     }
 }
