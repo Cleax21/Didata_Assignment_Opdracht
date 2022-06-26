@@ -2,7 +2,7 @@
   "profiles": {
     "Didata_Assignment_Opdracht": {
       "commandName": "Project",
-      "commandLineArgs": "-f Order.json test"
+      "commandLineArgs": "-d C:/Users/Cleax/Documents/Programming/Projects/Didata_Assignment_Opdracht/bin/Debug/net6.0/TestFolder Test"
     }
   }
 }

@@ -16,8 +16,7 @@ namespace Didata_Assignment_Opdracht
                     Console.WriteLine("No arguments has been supplied. Use --help for further information.");
                     break;
                 case ErrorTypes.ARGUMENT_D_ONLY_ONCE:
-                    Console.WriteLine("Argument -d can only be used once.");
-                    break;
+                    throw new Exception("Argument -d can only be used once.");
                 case ErrorTypes.ARGUMENT_D_AND_F_INVALID:
                     Console.WriteLine("Both -d and -f argument can only be used exclusively.");
                     break;
@@ -43,7 +42,6 @@ namespace Didata_Assignment_Opdracht
                     Console.WriteLine("Something went wrong. Not sure what");
                     break;
             }
-            System.Environment.Exit(0);
         }
     }
 }
