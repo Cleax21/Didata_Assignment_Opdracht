@@ -1,6 +1,6 @@
 ﻿using CsvHelper;
+using Newtonsoft.Json;
 using System.Globalization;
-using System.Text.Json;
 
 namespace Didata_Assignment_Opdracht
 {
@@ -12,20 +12,23 @@ namespace Didata_Assignment_Opdracht
         /// <summary>
         /// A list of orders converted from .json file(s).
         /// </summary>
-        private List<Order>? Orders;
+        private readonly List<Order> Orders;
 
         /// <summary>
-        /// The class in which contains the nessesarly validated argument data for the application.
+        /// The class in which contains the nessesarly validated argument data 
+        /// for the application.
         /// </summary>
         private readonly Argument Argument;
 
         /// <summary>
         /// Constructor of the class.
         /// </summary>
-        /// <param name="args">Supplied argument which contains json files, directory paths and other important data.</param>
+        /// <param name="args">Supplied argument which contains json files, 
+        /// directory paths and other important data.</param>
         public Didata_Assignment_Opdracht(string[] args)
         {
             Argument = new(args);
+            Orders = new();
         }
 
         /// <summary>
@@ -33,34 +36,9 @@ namespace Didata_Assignment_Opdracht
         /// </summary>
         public void Execute()
         {
-            Dictionary<ArgumentTypes, List<string>> list;
-            if (Settings.isExample)
-            {
-                Orders = GetExampleValues();
-                WriteToCSV("output.csv");
-            }
-            else
-            {
-                list = Argument.GetArguments();
+            ValidateFiles();
+            WriteToCSV(Argument.GetFilename());
 
-                if (list[ArgumentTypes.D].Count > 0)
-                {
-                    string[] tests = Directory.GetFiles(list[ArgumentTypes.D].First(), "*.json");
-
-                    foreach(var test in tests)
-                    {
-                        string orderJsonData = File.ReadAllText(test);
-                        Orders = JsonSerializer.Deserialize<List<Order>>(orderJsonData) ?? new();
-                        WriteToCSV(Argument.GetFilename());
-                    }
-                }
-                else if(list[ArgumentTypes.F].Count > 0)
-                {
-                    string orderJsonData = File.ReadAllText(list[ArgumentTypes.F].First());
-                    Orders = JsonSerializer.Deserialize<List<Order>>(orderJsonData) ?? new();
-                    WriteToCSV(Argument.GetFilename());
-                }                
-            }
         }
 
         /// <summary>
@@ -78,23 +56,84 @@ namespace Didata_Assignment_Opdracht
         }
 
         /// <summary>
-        /// Get the orderlist from an example in the application. Presentation purposes only.
+        /// Checks if all given files within the arguments are valid files and
+        /// no errors are within the .json files.
         /// </summary>
-        /// <returns>An <see cref="List{Order}"/> of orders</returns>
-        public static List<Order> GetExampleValues()
+        private void ValidateFiles()
         {
-            string path = "Order.json";
-            string OrderJsonData = File.ReadAllText(path);
-            return JsonSerializer.Deserialize<List<Order>>(OrderJsonData) ?? new();
+            Dictionary<ArgumentTypes, List<string>> list = Argument.GetArguments();
+
+            // Handle -d argument files
+            if (Argument.GetFoldername() != String.Empty)
+            {
+                string[] files = Directory.GetFiles(Argument.GetFoldername(), "*.json")
+                    ?? Array.Empty<string>();
+
+                foreach (var file in files)
+                {
+                    ValidateFile(file);
+                }
+            }
+
+            if (list.ContainsKey(ArgumentTypes.F))
+            {
+                foreach (var item in list[ArgumentTypes.F])
+                {
+                    ValidateFile(item);
+                }
+            }
+
+
         }
 
         /// <summary>
-        /// Writes the Orders in a .CSV file
+        /// Checks a single file if it is valid for the order class.
+        /// </summary>
+        /// <param name="file">The file which is being checked on.</param>
+        /// <exception cref="Exception">Occures when a .json file is invalid.</exception>
+        private void ValidateFile(string file)
+        {
+            string text = File.ReadAllText(file);
+            string message = "";
+
+            var settings = new JsonSerializerSettings()
+            {
+                Error = (s, e) =>
+                {
+                    message = e.ErrorContext.Error.Message;
+                    e.ErrorContext.Handled = true; // Set the datetime to a
+                                                   // default value if not Nullable
+                }
+            };
+            var test = JsonConvert.DeserializeObject<List<Order>>(text, settings);
+            //ndeps contains the serialized objects, messages contains the errors
+
+            if (test != null && test.Count > 0)
+            {
+                Orders.Add(test.First());
+            }
+            else
+            {
+                if (test != null && test.Count == 0)
+                {
+                    throw new Exception($"Error on file '{file}': {message}");
+                }
+                else
+                {
+                    // The file is not valid for orders.
+                }
+            }
+        }
+
+        /// <summary>
+        /// Writes the Orders in a .CSV file.
         /// </summary>
         /// <param name="filename">The name of the file for the .CSV file</param>
         public void WriteToCSV(string filename)
         {
-            var csvPath = Path.Combine(Environment.CurrentDirectory, filename);
+            var directory = Environment.CurrentDirectory + Settings.dataLocation;
+            Directory.CreateDirectory(directory);
+            var csvPath = Path.Combine(directory, filename);
             using var streamWriter = new StreamWriter(csvPath);
             CultureInfo nfi = CultureInfo.GetCultureInfo("en-US");
             CsvHelper.Configuration.CsvConfiguration configure = new(nfi)
@@ -104,11 +143,9 @@ namespace Didata_Assignment_Opdracht
                 SanitizeForInjection = false,
             };
 
-
             using var csvWriter = new CsvWriter(streamWriter, configure);
             csvWriter.Context.RegisterClassMap<OrderClassMap>();
             csvWriter.WriteRecords(Orders);
         }
-
     }
 }

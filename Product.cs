@@ -1,25 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Didata_Assignment_Opdracht
+﻿namespace Didata_Assignment_Opdracht
 {
+    /// <summary>
+    /// A product which can be part of a <see cref="Order"/> list.
+    /// See <see cref="Order.Products"/> for more info.
+    /// </summary>
     public class Product
     {
+        /// <summary>
+        /// The ID of the product class.
+        /// </summary>
         public string ProductId { get; }
 
+        /// <summary>
+        /// The description of the product class.
+        /// </summary>
         public string Description { get; }
+
+        /// <summary>
+        /// The amount 
+        /// </summary>
         public decimal Amount { get; }
         public decimal Price { get; }
 
-        public Product(string productId, string description, decimal amount, decimal price)
+        public Product(string productId, string description, decimal amount, 
+            decimal price)
         {
             ProductId = productId;
             Description = description;
             Amount = amount;
             Price = price;
+
+            Validate();
         }
 
         public void WriteToConsole()
@@ -30,26 +41,30 @@ namespace Didata_Assignment_Opdracht
             Console.WriteLine($"    Price: {Price}");
         }
 
-        public void validate()
+        public void Validate()
         {
             if(ProductId.Length > 50)
             {
-                throw new Exception("ID is too long. Max 50 characters allowed.");
+                throw new Exception("ID is too long. " +
+                    "Max 50 characters allowed.");
             }
 
             if(Description.Length > 200)
             {
-                throw new Exception("Description is too long. Max 200 characters allowed.");
+                throw new Exception("Description is too long. " +
+                    "Max 200 characters allowed.");
             }
 
             if(Decimal.Round(Amount, 3) != Amount)
             {
-                throw new Exception("Amount contains too many decimals. Max 2 allowed.");
+                throw new Exception("Amount contains too many decimals. " +
+                    "Max 2 allowed.");
             }
 
             if (Decimal.Round(Price, 3) != Price)
             {
-                throw new Exception("Price contains too many decimals. Max 2 allowed.");
+                throw new Exception("Price contains too many decimals. " +
+                    "Max 2 allowed.");
             }
         }
     }

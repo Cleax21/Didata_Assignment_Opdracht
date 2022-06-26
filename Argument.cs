@@ -1,54 +1,83 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Didata_Assignment_Opdracht
+﻿namespace Didata_Assignment_Opdracht
 {
     /// <summary>
-    /// A class that processed given argument within a console application.
+    /// Represents all the arguments in which this application can use to 
+    /// function properly.
     /// </summary>
     public class Argument
     {
         /// <summary>
-        /// A collection of given arguments.
+        /// A collection of given arguments from the user.
         /// </summary>
         private readonly string[] Args;
 
         /// <summary>
-        /// A list of arguments in a more detailed <see cref="Dictionary{ArgumentTypes, string}"/> class.
+        /// A list of arguments in a more detailed 
+        /// <see cref="Dictionary{ArgumentTypes, string}"/> class.
         /// </summary>
-        private Dictionary<ArgumentTypes, List<string>> List = new();
+        private readonly Dictionary<ArgumentTypes, List<string>> List = new();
 
+        /// <summary>
+        /// The folder where all .json files are collected from.
+        /// <para/>
+        /// Default name when <see cref="Settings.isDemonstration"/> is true. is set to
+        /// <see cref="Settings.defaultFoldername"/>
+        /// </summary>
+        private string? Foldername;
+
+        /// <summary>
+        /// The filename where the data is getting stored into.
+        /// <para/>
+        /// Default name when <see cref="Settings.isDemonstration"/> is true. is set to
+        /// <see cref="Settings.defaultFilename"/>
+        /// </summary>
         private string? Filename;
 
         /// <summary>
         /// The constructor of the <see cref="Argument"/> class.
         /// </summary>
-        /// <param name="args"></param>
+        /// <param name="args">Given arguments from the user.</param>
         public Argument(string[] args)
         {
-            // set args to class property.
             Args = args;
-
-            // Process and validate the given arguments.
-            HandleArguments();
-            ValidateArguments();
         }
 
         /// <summary>
-        /// Returns a <see cref="Dictionary{ArgumentTypes, string}"/> list of arguments.
+        /// Processes and validates the given arguments and returns a 
+        /// <see cref="Dictionary{ArgumentTypes, string}"/> list of valid arguments.
         /// </summary>
         /// <returns><see cref="Dictionary{ArgumentTypes, string}"/></returns>
         public Dictionary<ArgumentTypes, List<string>> GetArguments()
         {
+            HandleArguments();
+
+            if (Settings.isDemonstration)
+            {
+                Filename = Settings.defaultFilename;
+                Foldername = Directory.GetCurrentDirectory() + Settings.defaultFoldername;
+            }
+
+            ValidateArguments();
+
             return List;
         }
 
+        /// <summary>
+        /// Returns the <see cref="Filename"/> to where the data is getting stored.
+        /// </summary>
+        /// <returns><see cref="string"/></returns>
         public string GetFilename()
         {
-            return Filename ?? throw new Exception("Filename not set");
+            return Filename ?? string.Empty;
+        }
+
+        /// <summary>
+        /// Returns the <see cref="Foldername"/> to where the .json files are stored.
+        /// </summary>
+        /// <returns>The folder path where the file is located</returns>
+        public string GetFoldername()
+        {
+            return Foldername ?? string.Empty;
         }
 
         /// <summary>
@@ -56,7 +85,6 @@ namespace Didata_Assignment_Opdracht
         /// </summary>
         private void HandleArguments()
         {
-            List.Add(ArgumentTypes.D, new List<string>());
             List.Add(ArgumentTypes.F, new List<string>());
             List.Add(ArgumentTypes.HELP, new List<string>());
             List.Add(ArgumentTypes.INVALID, new List<string>());
@@ -83,35 +111,43 @@ namespace Didata_Assignment_Opdracht
                         if (i + 1 >= Args.Length)
                         {
                             // -d argument is missing a following directory path.
-                            List[ArgumentTypes.INVALID].Add($"Argument -d on index '{i}' is missing a directory path");
+                            List[ArgumentTypes.INVALID].Add($"Argument -d on index " +
+                                $"'{i}' is missing a directory path");
                             return;
                         }
+                        if (Foldername != null)
+                        {
+                            // -d argument is used more than once.
+                            List[ArgumentTypes.INVALID].Add($"More than one -d argument" +
+                                $" is present on index '{i}'");
+                            break;
+
+                        }
                         i++;
-                        List[ArgumentTypes.D].Add(Args[i]);
+                        Foldername = Args[i];
                         break;
                     case "-f":
                         if (i + 1 >= Args.Length)
                         {
                             // -f argument is missing a following .json file.
-                            List[ArgumentTypes.INVALID].Add($"Argument -f on index '{i}' is missing a .json file");
+                            List[ArgumentTypes.INVALID].Add($"Argument -f on index " +
+                                $"'{i}' is missing a .json file");
                             return;
-
                         }
                         i++;
                         // Add -f argument to list.
                         List[ArgumentTypes.F].Add(Args[i]);
-
-
-
                         break;
                     default:
-                        // Check if item is the last item. (Required as last argument must be a FILENAME)
+                        // Check if item is the last item. (Required as last
+                        // argument must be a FILENAME)
                         if (Args.Last().Equals(Args[i]))
                         {
                             if (Args[i].Contains('-'))
                             {
-                                // Filename contains a '-' which is assumed as a argument.
-                                List[ArgumentTypes.INVALID].Add($"Unknown argument '{Args[i]}'. Use --help for more information");
+                                // Filename contains a '-', which is used to look like a unknown argument.
+                                List[ArgumentTypes.INVALID].Add($"Unknown argument " +
+                                    $"'{Args[i]}'. Use --help for more information");
                                 return;
                             }
                             // Filename is safe to use.
@@ -119,7 +155,9 @@ namespace Didata_Assignment_Opdracht
                         }
                         else
                         {
-                            List[ArgumentTypes.INVALID].Add($"Unknown argument '{Args[i]}'. Use --help for more information");
+                            // Item is not the last item and is a unknown argument
+                            List[ArgumentTypes.INVALID].Add($"Unknown argument " +
+                                $"'{Args[i]}'. Use --help for more information");
                             return;
                         }
                         break;
@@ -130,111 +168,189 @@ namespace Didata_Assignment_Opdracht
         }
 
         /// <summary>
-        /// Validate all arguments within the <see cref="Argument.List"/> on errors or invalidations.
+        /// Validate all arguments within the <see cref="Argument.List"/> on 
+        /// errors or invalidations.
         /// </summary>
         /// <exception cref="Exception"></exception>
         private void ValidateArguments()
         {
+            // Validate help and invalid argument found within the List property.
+            ValidateHelpArguments();
+            ValidateInvalidArguments();
+
+            // Check if a filename is given.
+            ValidateFilename();
+
+            // Check on all other properties.
+            ValidateValidArguments();
+
+            // If the application is in debug mode. print the valid arguments
+            // and FILENAME in the console output.
+            if (Settings.isDebug)
+            {
+                Console.WriteLine($"filename: {Filename}");
+
+                if (Foldername != null)
+                {
+                    Console.WriteLine($"-d: {Foldername}");
+                }
+                else if (ArgumentTypeExists(ArgumentTypes.F))
+                {
+                    Console.WriteLine("F Arguments:");
+                    Console.WriteLine("----------");
+                    foreach (var item in List[ArgumentTypes.F])
+                    {
+                        Console.WriteLine($"    -f: {item}");
+                        Console.WriteLine("----------");
+                    }
+                }
+            }
+
+        }
+
+        /// <summary>
+        /// Checks if the user has requested a help command in the terminal.
+        /// </summary>
+        /// <exception cref="Exception">Returns a list op helpfull commands 
+        /// for this application</exception>
+        private void ValidateHelpArguments()
+        {
             // Checks if a HELP argument is present.
-            if (List[ArgumentTypes.HELP].Count > 0)
+            if (ArgumentTypeExists(ArgumentTypes.HELP))
             {
                 Help();
                 throw new Exception("");
             }
+        }
+
+        /// <summary>
+        /// Checks if the <see cref="List"/> contains any invalid arguments, 
+        /// found when collecting the argument inside the 
+        /// <see cref="HandleArguments"/> function.
+        /// <para/>
+        /// This also includes the part where neither -d and -f arguments can be used 
+        /// simultaneously.
+        /// </summary>
+        /// <exception cref="Exception"></exception>
+        private void ValidateInvalidArguments()
+        {
             // Checks if an INVALID argument is present.
-            if (List[ArgumentTypes.INVALID].Count > 0)
+            if (ArgumentTypeExists(ArgumentTypes.INVALID))
             {
                 throw new Exception(List[ArgumentTypes.INVALID].First());
             }
 
-            // Boolean to check on existence of available arguments.
-            bool foundArgD = false;
-            bool foundArgF = false;
-
-            // Checks if a -d argument is present.
-            if (List[ArgumentTypes.D].Count > 0)
-            {
-                foundArgD = true;
-                // Checks if more than 1 -d argument is present.
-                if (List.Where(i => i.Key == ArgumentTypes.D).Count() > 1)
-                {
-                    ErrorHandler.writeErrorToConsole(ErrorTypes.ARGUMENT_D_ONLY_ONCE);
-                }
-            }
-
-            // Checks if a -f argument is present.
-            if (List[ArgumentTypes.F].Count > 0)
-            {
-                foundArgF = true;
-            }
-
-            // Checks if a FILENAME is present.
-            if (Filename == null)
-            {
-                ErrorHandler.writeErrorToConsole(ErrorTypes.NO_FILENAME_GIVEN);
-            }
-
             // Checks if both -d and -f argument is present. (not allowed) 
-            if (foundArgD && foundArgF)
+            if (Foldername != null && List[ArgumentTypes.F].Count > 0)
             {
-                ErrorHandler.writeErrorToConsole(ErrorTypes.ARGUMENT_D_AND_F_INVALID);
-            }
-            // Checks if neither -d or -f argument is present. (minimal of 1 of 2 argument required)
-            else if (!foundArgD && !foundArgF)
-            {
-                ErrorHandler.writeErrorToConsole(ErrorTypes.ARGUMENT_D_OR_F_MISSING);
+                throw new Exception("-d and -f argument can only be used exclusively.");
             }
 
-            // Checks if the -d argument contains a valid directory path.
-            if (foundArgD && !Directory.Exists(List[ArgumentTypes.D][0]))
+            // Checks if neither -d or -f argument is present. (minimal of 1 of 2
+            // argument required)
+            if (List[ArgumentTypes.F].Count == 0 && Foldername == null)
             {
-                ErrorHandler.writeErrorToConsole(ErrorTypes.ARGUMENT_D_INVALID);
+                throw new Exception("-f OR -d is missing, which is mandatory.");
             }
+        }
 
-            foreach(var item in List[ArgumentTypes.F])
+        /// <summary>
+        /// Checks if all known arguments are valid.
+        /// </summary>
+        private void ValidateValidArguments()
+        {
+            ValidateDArguments();
+            ValidateFArguments();
+        }
+
+        /// <summary>
+        /// Checks if the argument -d is valid.
+        /// </summary>
+        /// <exception cref="Exception">Returns an error when the directory path is invalid.</exception>
+        private void ValidateDArguments()
+        {
+            // Checks if the -d argument is present.
+            if (Foldername != null)
             {
-                // Checks if the -f argument is a.json file. (mandatory)
-                if (Path.GetExtension(item) != ".json")
+                List.Remove(ArgumentTypes.F);
+
+                // Checks if the -d argument contains a valid directory path.
+                if (!Directory.Exists(Foldername))
                 {
-                    ErrorHandler.writeErrorToConsole(ErrorTypes.INVALID_F_EXTENSION);
+                    throw new Exception("-d is invalid. Cannot find the directory path.");
                 }
-                // If that is true, check if the file actually exists.
-                else if (!File.Exists(item))
-                {
-                    ErrorHandler.writeErrorToConsole(ErrorTypes.FILE_F_DOES_NOT_EXIST);
-                }
             }
+        }
 
-            // Checks if the given FILENAME contain a .csv extension (mandatory, but changes it to one automatically)
-            if (Path.GetExtension(Filename) != ".csv")
+        /// <summary>
+        /// Checks if all -f argument(s) are valid.
+        /// </summary>
+        /// <exception cref="Exception">Errors within the -f arguments.</exception>
+        private void ValidateFArguments()
+        {
+            if (ArgumentTypeExists(ArgumentTypes.F))
             {
-                Console.WriteLine("filename doesn't include the valid .csv extension. Adding it manually...");
-                HandleCSVFile();  
-            }
-            
-            // If the application is in debug mode. print the valid arguments and FILENAME in the console output.
-            if(Settings.isDebug)
-            {
-                Console.WriteLine($"filename: {Filename}");
+                Foldername = null;
 
-                if (foundArgD)
+                foreach (var item in List[ArgumentTypes.F])
                 {
-                    Console.WriteLine($"-d: {List.FirstOrDefault(i => i.Key == ArgumentTypes.D).Value}");
-                }
-                else if (foundArgF)
-                {
-                    Console.WriteLine("F Arguments:");
-                    Console.WriteLine("----------");
-                    foreach (var item in List.Where(i => i.Key == ArgumentTypes.F))
+                    // Checks if the -f argument is a.json file. (mandatory)
+                    if (Path.GetExtension(item) != ".json")
                     {
-                        Console.WriteLine($"    -f: {item.Value}");
-                        Console.WriteLine("----------");
+                        throw new Exception($"-f '{item}' at index " +
+                            $"'{List[ArgumentTypes.F].IndexOf(item) * 2}' " +
+                            $"is invalid. all -f arguments need an .json extension");
+                    }
+                    // If that is true, check if the file actually exists.
+                    else if (!File.Exists(item))
+                    {
+                        throw new Exception($"-f '{item}' at index " +
+                            $"'{List[ArgumentTypes.F].IndexOf(item) * 2}' " +
+                            $"does not exist.");
                     }
                 }
             }
         }
 
-        private void Help()
+        /// <summary>
+        /// Checks if a FILENAME property exists at the end of the arguments.
+        /// <para />
+        /// If a filename is given, but with the wrong / missing extension, 
+        /// it will be changed to a .csv file
+        /// </summary>
+        /// <exception cref="Exception">Exception thrown when FILENAME is missing</exception>
+        private void ValidateFilename()
+        {
+            // Checks if a FILENAME is present.
+            if (Filename == null)
+            {
+                throw new Exception("FILENAME is missing.");
+            }
+
+            // Checks if the given FILENAME contain a .csv extension
+            // (mandatory, but changes it to one automatically)
+            if (Path.GetExtension(Filename) != ".csv")
+            {
+                Console.WriteLine("filename doesn't include the valid " +
+                    ".csv extension. Adding it manually...");
+                HandleCSVFile();
+            }
+        }
+
+        /// <summary>
+        /// Validate if a argumenttype within the <see cref="List"/> property exists.
+        /// </summary>
+        /// <param name="type">The <see cref="ArgumentTypes"/></param> that has to be checked.
+        /// <returns><see cref="true"/> if found, <see cref="false"/> if not</returns>
+        private bool ArgumentTypeExists(ArgumentTypes type)
+        {
+            return (List.ContainsKey(type) && List[type].Count > 0);
+        }
+
+        /// <summary>
+        /// Prints out a helpfull overview of all known commands and arguments
+        /// </summary>
+        private static void Help()
         {
             Console.WriteLine("--------------------------------------------------");
             Console.WriteLine("Syntax: Program-name [OPTIONS] FILENAME");
@@ -245,13 +361,18 @@ namespace Didata_Assignment_Opdracht
             Console.WriteLine("     used once. Exclusive to -f.");
             Console.WriteLine("");
             Console.WriteLine("-f   Name of the input file. Can be used multiple");
-            Console.WriteLine("     times. Exclusive to -d");
+            Console.WriteLine("     times. Exclusive to -d.");
+            Console.WriteLine("");
+            Console.WriteLine("--help   Returns this overview of commands.");
             Console.WriteLine("");
             Console.WriteLine("FILENAME");
-            Console.WriteLine("     Name of the output file");
+            Console.WriteLine("     Name of the output file.");
             Console.WriteLine("--------------------------------------------------");
         }
 
+        /// <summary>
+        /// Changes the <see cref="Filename"/> to an .csv file.
+        /// </summary>
         private void HandleCSVFile()
         {
             if (Filename != null)

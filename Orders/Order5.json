@@ -1,0 +1,21 @@
+﻿[
+  {
+    "OrderId": 15701290,
+    "Description": "Dierenproducten",
+    "CustomerId": 13857,
+    "Products": [
+      {
+        "ProductId": "Hondenriem voor jonge teckels",
+        "Description": "Een handige hondenriem, speciaal gemaakt voor teckels van 0 tot 2 jaar.",
+        "Amount": 1,
+        "Price": 18.99
+      },
+      {
+        "ProductId": "Hondenriem voor volwassen teckels",
+        "Description": "Een handige hondenriem, speciaal gemaakt voor teckels vanaf 2 jaar",
+        "Amount": 2.5,
+        "Price": 24.99
+      }
+    ]
+  }
+]

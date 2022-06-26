@@ -1,0 +1,21 @@
+﻿[
+  {
+    "OrderId": 17501,
+    "Description": "Keukenproducten voor de verhuizing",
+    "CustomerId": 1850918,
+    "Products": [
+      {
+        "ProductId": "Keukenmessen la espana",
+        "Description": "Nieuwe set keukenmessen, gemaakt in spanje",
+        "Amount": 2,
+        "Price": 39.99
+      },
+      {
+        "ProductId": "Gerechten spaanje snacks",
+        "Description": "Een handige boek voor met spaanse kleine gerechten",
+        "Amount": 1,
+        "Price": 16.99
+      }
+    ]
+  }
+]

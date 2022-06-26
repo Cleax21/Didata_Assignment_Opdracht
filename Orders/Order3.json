@@ -1,0 +1,21 @@
+﻿[
+  {
+    "OrderId": 657981,
+    "Description": "Schoolboeken voor nieuwe schooljaar",
+    "CustomerId": 157812,
+    "Products": [
+      {
+        "ProductId": "Engelsboek B1",
+        "Description": "Een nieuw boek voor het verbeteren in engels",
+        "Amount": 1,
+        "Price": 19.79
+      },
+      {
+        "ProductId": "Wiskundeboek Pythagoras",
+        "Description": "Een uitgebreid wiskunde boek voor eindjaarscholieren op het vak wiskunde",
+        "Amount": 1,
+        "Price": 39.29
+      }
+    ]
+  }
+]

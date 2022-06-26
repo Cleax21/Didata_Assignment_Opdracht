@@ -1,0 +1,21 @@
+﻿[
+  {
+    "OrderId": 223,
+    "Description": "Nieuwe PC Onderdelen",
+    "CustomerId": 420345,
+    "Products": [
+      {
+        "ProductId": "GTX 1050 TI",
+        "Description": "Een zuinige videokaart, goed voor meeste low/mid tier games",
+        "Amount": 1,
+        "Price": 219.99
+      },
+      {
+        "ProductId": "AMD Ryzen 5 2700",
+        "Description": "Een sterke CPU voor alle benodigheden",
+        "Amount": 1,
+        "Price": 149.99
+      }
+    ]
+  }
+]
