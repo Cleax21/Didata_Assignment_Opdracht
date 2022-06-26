@@ -1,5 +1,10 @@
 ﻿namespace Didata_Assignment_Opdracht
 {
+    /// <summary>
+    /// The main class of the application. 
+    /// This class contains the <see cref="Main(string[])"/> function, 
+    /// which is known to be the starting point of every c# application.
+    /// </summary>
     public class Program
     {
         /// <summary>

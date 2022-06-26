@@ -52,7 +52,7 @@ namespace Didata_Assignment_Opdracht
         public decimal TotalPrice { get; }
 
         /// <summary>
-        /// The constructor of the class <see cref="Order"/>
+        /// The constructor of the class <see cref="Order"/>.
         /// </summary>
         /// <param name="orderId">The ID of the order</param>
         /// <param name="description">The description of the order.</param>
@@ -66,7 +66,7 @@ namespace Didata_Assignment_Opdracht
             CustomerId = customerId;
             Products = products;
 
-            // Calculates the totalprice, based on the sum total price of
+            // Calculates the total price, based on the sum total price of
             // all listed products within the order.
             TotalPrice = Products.Sum(product => product.Price);
 
@@ -103,25 +103,25 @@ namespace Didata_Assignment_Opdracht
         /// <exception cref="Exception">Any errors that makes the order invalid.</exception>
         public void Validate()
         {
-            if(OrderId <= 0)
+            if (OrderId <= 0)
             {
-                throw new Exception("OrderId must be higher than 0");
+                throw new Exception("OrderId must be higher than 0.");
             }
 
             if (Description.Length > 100)
             {
                 throw new Exception("Description title is to long. " +
-                    "Max 100 characters allowed");
+                    "Max 100 characters allowed.");
             }
 
-            if(CustomerId <= 0)
+            if (CustomerId <= 0)
             {
-                throw new Exception("CustomerId must be higher than 0");
+                throw new Exception("CustomerId must be higher than 0.");
             }
 
-            if(Products.Count <= 0)
+            if (Products.Count <= 0)
             {
-                throw new Exception("Order contains no products");
+                throw new Exception("Order contains no products.");
             }
         }
     }

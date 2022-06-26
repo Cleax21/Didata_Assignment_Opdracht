@@ -12,7 +12,7 @@
         /// <summary>
         /// Property of the application to run a demonstration if set to true.
         /// </summary>
-        public static readonly bool isDemonstration = true;
+        public static readonly bool isDemonstration = false;
 
         // General Settings //
 
@@ -29,7 +29,7 @@
         public static readonly string defaultFilename = "output.csv";
 
         /// <summary>
-        /// Default foldername on where the .json files are stored.
+        /// Default foldername on where the .JSON files are stored.
         /// <para />
         /// Only works when <see cref="isDemonstration"/> is set to true.
         /// </summary>

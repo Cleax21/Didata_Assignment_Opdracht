@@ -1,0 +1,15 @@
+﻿[
+  {
+    "OrderId": 104,
+    "Description": "Verzameling nieuwe laarzen",
+    "CustomerId": 2304581,
+    "Products": [
+      {
+        "ProductId": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "Description": "Een set rode laarzen. Goed voor buiten in de tuin.",
+        "Amount": 1,
+        "Price": 29.49
+      }
+    ]
+  }
+]

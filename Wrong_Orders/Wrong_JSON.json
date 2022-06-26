@@ -1,0 +1,18 @@
+﻿[
+  {
+    "Naam": "Clemens",
+    "Beschrijving": "Een programmeur die dit heeft gemaakt.",
+    "leeftijd": 22,
+    "Vaardigheden": [
+      {
+        "Taal": "Nederlands",
+        "English": "Dutch",
+        "Beschrijving": "Moedertaal",
+        "Score": "Vloeiend"
+      },
+      {
+        "Programmeertalen": "C#, PHP, Java, Javascript, HTML/CSS"
+      }
+    ]
+  }
+]

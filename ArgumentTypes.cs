@@ -9,7 +9,7 @@
         F,
         /// <summary>Used for '--help', '--h', OR '--?' argument</summary>.
         HELP,
-        /// <summary>Used for invalid argument</summary>.
+        /// <summary>Used for invalid argument.</summary>
         INVALID
     }
 }
