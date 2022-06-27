@@ -34,5 +34,10 @@
         /// Only works when <see cref="isDemonstration"/> is set to true.
         /// </summary>
         public static readonly string defaultFoldername = "\\Orders";
+
+        /// <summary>
+        /// The name of this application.
+        /// </summary>
+        public static readonly string application_name = System.Reflection.Assembly.GetExecutingAssembly().GetName().Name ?? string.Empty;
     }
 }

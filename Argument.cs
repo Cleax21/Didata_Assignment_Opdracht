@@ -1,4 +1,6 @@
-﻿namespace Didata_Assignment_Opdracht
+﻿using System.Reflection;
+
+namespace Didata_Assignment_Opdracht
 {
     /// <summary>
     /// Represents all the arguments in which this application can use to 
@@ -359,7 +361,7 @@
         private static void Help()
         {
             Console.WriteLine("--------------------------------------------------");
-            Console.WriteLine("Syntax: Program-name [OPTIONS] FILENAME");
+            Console.WriteLine($"Syntax: {Settings.application_name} [OPTIONS] FILENAME");
             Console.WriteLine("");
             Console.WriteLine("OPTIONS:");
             Console.WriteLine("-d   Name of an existing directory where the");
